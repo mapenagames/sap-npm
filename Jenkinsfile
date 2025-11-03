@@ -77,7 +77,7 @@ pipeline {
                     echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
 
                     echo " Ejecutando piper mtaBuild..."
-                    piper mtaBuild --verbose || echo "⚠️ mtaBuild finalizó con advertencias"
+                    piper mtaBuild --verbose || echo " mtaBuild finalizó con advertencias"
 
                     echo " Archivos generados:"
                     ls -lh
@@ -90,7 +90,7 @@ pipeline {
                 script {
                     echo " Archivando artefactos generados (.mtar)"
                 }
-                archiveArtifacts artifacts: "${WORKDIR}/mta/mta_archives/*.mtar", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${WORKDIR}/mta/*.mtar", onlyIfSuccessful: true
             }
         }
     }
