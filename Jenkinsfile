@@ -102,8 +102,8 @@ pipeline {
                 }
                 archiveArtifacts artifacts: "${WORKDIR}/mta/mta_archives/*.mtar", onlyIfSuccessful: true
             }
-     }
-
+        }
+    }
     post {
         always {
             echo ' Pipeline completo con npmExecuteScripts + mtaBuild ejecutado correctamente.'
