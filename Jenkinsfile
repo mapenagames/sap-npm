@@ -66,13 +66,13 @@ pipeline {
         stage('Ejecutar Piper npmExecuteScripts') {
             steps {
                 sh '''
-                    cd ${WORKDIR}
+                    cd demo-npm-real
                     echo "Ejecutando Piper npmExecuteScripts..."
-                    # Forzamos install para evitar conflictos con lock file
-                    piper npmExecuteScripts --verbose --installCommand install --runScripts lint --runScripts test --runScripts build
+                    piper npmExecuteScripts --verbose --runScripts lint --runScripts test --runScripts build
                 '''
             }
         }
+
 
         stage('Ejecutar Piper mtaBuild') {
             steps {
