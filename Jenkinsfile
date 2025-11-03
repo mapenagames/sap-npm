@@ -19,12 +19,12 @@ pipeline {
                     wget -q -O piper https://github.com/SAP/jenkins-library/releases/latest/download/piper
                     chmod +x piper
                     mv piper /usr/local/bin/
-                    echo "✅ Piper instalado en $(which piper)"
+                    echo " Piper instalado en $(which piper)"
                     piper version
 
-                    echo "📦 Instalando SAP MTA Builder (mbt)..."
+                    echo " Instalando SAP MTA Builder (mbt)..."
                     npm install -g mbt
-                    echo "✅ mbt instalado en $(which mbt)"
+                    echo " mbt instalado en $(which mbt)"
                     mbt --version
                 '''
             }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 sh '''
                     cd ${WORKDIR}
-                    echo "🏗️ Ejecutando step Piper npmExecuteScripts..."
+                    echo " Ejecutando step Piper npmExecuteScripts..."
                     piper npmExecuteScripts --verbose --runScripts lint --runScripts test --runScripts build
                 '''
             }
@@ -62,25 +62,24 @@ pipeline {
         stage('Ejecutar piper mtaBuild') {
             steps {
                 sh '''
-                    echo "🏗️ Preparando proyecto MTA simulado..."
+                    echo " Preparando proyecto MTA simulado..."
                     mkdir -p ${WORKDIR}/mta
                     cd ${WORKDIR}/mta
+                    pwd
+                    echo 'ID: demo-piper-mta           ' > mta.yaml
+                    echo 'version: 1.0.0               ' >> mta.yaml
+                    echo 'modules:                     ' >> mta.yaml
+                    echo '  - name: demo-module        ' >> mta.yaml
+                    echo '    type: nodejs             ' >> mta.yaml
+                    echo '    path: .                  ' >> mta.yaml
 
-                    cat > mta.yaml <<'EOF'
-ID: demo-piper-mta
-version: 1.0.0
-modules:
-  - name: demo-module
-    type: nodejs
-    path: .
-EOF
-
+                    cat mta.yaml
                     echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
 
-                    echo "🏗️ Ejecutando piper mtaBuild..."
+                    echo " Ejecutando piper mtaBuild..."
                     piper mtaBuild --verbose || echo "⚠️ mtaBuild finalizó con advertencias"
 
-                    echo "✅ Archivos generados:"
+                    echo " Archivos generados:"
                     ls -lh
                 '''
             }
@@ -89,7 +88,7 @@ EOF
         stage('Archivar artefactos') {
             steps {
                 script {
-                    echo "📦 Archivando artefactos generados (.mtar)"
+                    echo " Archivando artefactos generados (.mtar)"
                 }
                 archiveArtifacts artifacts: "${WORKDIR}/mta/mta_archives/*.mtar", onlyIfSuccessful: true
             }
@@ -98,7 +97,7 @@ EOF
 
     post {
         always {
-            echo '✅ Pipeline completo con npmExecuteScripts + mtaBuild ejecutado correctamente.'
+            echo ' Pipeline completo con npmExecuteScripts + mtaBuild ejecutado correctamente.'
         }
     }
 }
