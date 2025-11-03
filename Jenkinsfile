@@ -1,3 +1,8 @@
 @Library('piper-lib-os') _
 
-piperPipeline script: this
+piperPipeline(
+    script: this,
+    agent: [
+        label: 'docker-agent'
+    ]
+)
