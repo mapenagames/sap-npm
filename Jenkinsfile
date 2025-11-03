@@ -58,7 +58,7 @@ pipeline {
                     echo "🏗️ Preparando proyecto MTA simulado..."
                     mkdir -p ${WORKDIR}/mta
                     cd ${WORKDIR}/mta
-
+                    pwd
                     cat > mta.yaml <<'EOF'
                 ID: demo-piper-mta
                 version: 1.0.0
@@ -67,6 +67,7 @@ pipeline {
                     type: nodejs
                     path: .
                 EOF
+                    ls -all
                     cat mta.yaml
                     echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
 
