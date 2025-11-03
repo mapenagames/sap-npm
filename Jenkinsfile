@@ -29,15 +29,15 @@ pipeline {
                 sh '''
                     mkdir -p ${WORKDIR}
                     cd ${WORKDIR}
-                    echo '{
-                        "name": "demo-piper",
-                        "version": "1.0.0",
-                        "scripts": {
-                            "lint": "echo Ejecutando lint ficticio...",
-                            "test": "echo Ejecutando test ficticio...",
-                            "build": "echo Compilando build ficticio..."
-                        }
-                    }' > package.json
+                    echo '{                                                         ' >  package.json
+                    echo ' "name": "demo-piper",                                    ' >> package.json
+                    echo ' "version": "1.0.0",                                      ' >> package.json
+                    echo ' "scripts": {                                             ' >> package.json
+                    echo '     "lint": "echo Ejecutando lint ficticio...",          ' >> package.json
+                    echo '     "test": "echo Ejecutando test ficticio...",          ' >> package.json
+                    echo '     "build": "echo Compilando build ficticio..."         ' >> package.json
+                    echo ' }                                                        ' >> package.json
+                    echo '}                                                         ' >> package.json
                     cat package.json
                 '''
             }
