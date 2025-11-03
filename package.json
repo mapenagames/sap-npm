@@ -1,0 +1,8 @@
+{
+    "name": "prueba-piper-npm",
+    "version": "1.0.0",
+    "description": "Prueba básica de Piper con npm",
+    "scripts": {
+        "build": "echo 'Build exitoso con npm!'"
+    }
+}
