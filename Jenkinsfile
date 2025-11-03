@@ -60,14 +60,12 @@ pipeline {
                     cd ${WORKDIR}/mta
                     pwd
 
-                    echo '
-                        ID: demo-piper-mta
-                        version: 1.0.0
-                        modules:
-                          - name: demo-module
-                            type: nodejs
-                            path: .
-                    ' > mta.yaml
+                    echo 'ID: demo-piper-mta           ' > mta.yaml
+                    echo 'version: 1.0.0               ' >> mta.yaml
+                    echo 'modules:                     ' >> mta.yaml
+                    echo '  - name: demo-module        ' >> mta.yaml
+                    echo '    type: nodejs             ' >> mta.yaml
+                    echo '    path: .                  ' >> mta.yaml
 
                     ls -all
                     cat mta.yaml
