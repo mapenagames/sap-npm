@@ -11,6 +11,7 @@ pipeline {
     }
 
     stages {
+
         stage('Preparar entorno') {
             steps {
                 sh '''
@@ -20,6 +21,11 @@ pipeline {
                     mv piper /usr/local/bin/
                     echo "✅ Piper instalado en $(which piper)"
                     piper version
+
+                    echo "📦 Instalando SAP MTA Builder (mbt)..."
+                    npm install -g mbt
+                    echo "✅ mbt instalado en $(which mbt)"
+                    mbt --version
                 '''
             }
         }
@@ -47,28 +53,28 @@ pipeline {
             steps {
                 sh '''
                     cd ${WORKDIR}
-                    echo "🏗️ Ejecutando step Piper npmExecuteScripts (modo real controlado)..."
+                    echo "🏗️ Ejecutando step Piper npmExecuteScripts..."
                     piper npmExecuteScripts --verbose --runScripts lint --runScripts test --runScripts build
                 '''
             }
         }
+
         stage('Ejecutar piper mtaBuild') {
             steps {
                 sh '''
                     echo "🏗️ Preparando proyecto MTA simulado..."
                     mkdir -p ${WORKDIR}/mta
                     cd ${WORKDIR}/mta
-                    pwd
 
-                    echo 'ID: demo-piper-mta           ' > mta.yaml
-                    echo 'version: 1.0.0               ' >> mta.yaml
-                    echo 'modules:                     ' >> mta.yaml
-                    echo '  - name: demo-module        ' >> mta.yaml
-                    echo '    type: nodejs             ' >> mta.yaml
-                    echo '    path: .                  ' >> mta.yaml
+                    cat > mta.yaml <<'EOF'
+ID: demo-piper-mta
+version: 1.0.0
+modules:
+  - name: demo-module
+    type: nodejs
+    path: .
+EOF
 
-                    ls -all
-                    cat mta.yaml
                     echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
 
                     echo "🏗️ Ejecutando piper mtaBuild..."
@@ -96,4 +102,3 @@ pipeline {
         }
     }
 }
- 
