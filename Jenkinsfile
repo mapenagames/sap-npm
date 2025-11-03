@@ -17,7 +17,7 @@ pipeline {
         stage('Preparar entorno') {
             steps {
                 sh '''
-                    apk add --no-cache wget git bash
+                    apk add --no-cache wget git bash curl
                     npm install -g mbt
                     echo "mbt instalado en $(which mbt)"
                     mbt --version
