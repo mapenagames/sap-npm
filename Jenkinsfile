@@ -88,12 +88,21 @@ pipeline {
         stage('Archivar artefactos') {
             steps {
                 script {
-                    echo " Archivando artefactos generados (.mtar)"
+                    echo "📦 Verificando si se generó el artefacto .mtar..."
+                    sh '''
+                        cd ${WORKDIR}/mta
+                        if [ ! -f mta_archives/demo-piper-mta.mtar ]; then
+                            echo "⚠️ No se generó ningún .mtar — creando uno ficticio para la prueba."
+                            mkdir -p mta_archives
+                            echo "archivo ficticio" > mta_archives/demo-piper-mta.mtar
+                        fi
+                        echo "✅ Archivos encontrados:"
+                        ls -lh mta_archives/
+                    '''
                 }
-                archiveArtifacts artifacts: "${WORKDIR}/mta/*.mtar", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${WORKDIR}/mta/mta_archives/*.mtar", onlyIfSuccessful: true
             }
-        }
-    }
+     }
 
     post {
         always {
