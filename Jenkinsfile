@@ -21,13 +21,12 @@ pipeline {
                     wget -q -O piper https://github.com/SAP/jenkins-library/releases/latest/download/piper
                     chmod +x piper
                     mv piper /usr/local/bin/
-                    echo "✅ Piper instalado en $(which piper)"
+                    echo "Piper instalado en $(which piper)"
                     piper version
 
-                    # Instalar SAP MTA Builder (mbt)
-                    echo "⚙️ Instalando SAP MTA Builder (mbt)..."
+                    # Instalar SAP MTA Builder
                     npm install -g mbt
-                    echo "✅ mbt instalado en $(which mbt)"
+                    echo "mbt instalado en $(which mbt)"
                     mbt --version
                 '''
             }
@@ -39,42 +38,27 @@ pipeline {
                     mkdir -p ${WORKDIR}
                     cd ${WORKDIR}
 
-                    # Inicializar proyecto npm real
+                    # Crear proyecto npm
                     npm init -y
 
                     # Instalar dependencias reales
                     npm install express
-
-                    # Instalar devDependencies para scripts reales
                     npm install --save-dev eslint jest babel-cli @babel/core @babel/preset-env
 
-                    # Configurar package.json con scripts reales
-                    npx eslint --init || true
+                    # Crear scripts de package.json
+                    node -e "
+                    const fs = require('fs');
+                    const pkg = require('./package.json');
+                    pkg.scripts = {
+                        lint: 'eslint . || echo \\'Lint finalizado con advertencias\\'',
+                        test: 'jest || echo \\'Tests finalizados\\'',
+                        build: 'babel . -d dist || echo \\'Build finalizado\\''
+                    };
+                    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+                    "
 
-                    cat <<EOF > package.json
-{
-  "name": "demo-npm-real",
-  "version": "1.0.0",
-  "scripts": {
-    "lint": "eslint . || echo 'Lint finalizado con advertencias'",
-    "test": "jest || echo 'Tests finalizados'",
-    "build": "babel . -d dist || echo 'Build finalizado'"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "eslint": "^8.50.0",
-    "jest": "^29.6.1",
-    "babel-cli": "^6.26.0",
-    "@babel/core": "^7.25.0",
-    "@babel/preset-env": "^7.25.0"
-  }
-}
-EOF
-
-                    echo "✅ package.json configurado con scripts reales"
-                    cat package.json
+                    # Generar package-lock.json para que npm ci funcione
+                    npm install
                 '''
             }
         }
@@ -83,34 +67,33 @@ EOF
             steps {
                 sh '''
                     cd ${WORKDIR}
-                    echo "🏗️ Ejecutando Piper npmExecuteScripts..."
-                    piper npmExecuteScripts --verbose --runScripts lint --runScripts test --runScripts build
+                    echo "Ejecutando Piper npmExecuteScripts..."
+                    # Forzamos install para evitar conflictos con lock file
+                    piper npmExecuteScripts --verbose --installCommand install --runScripts lint --runScripts test --runScripts build
                 '''
             }
         }
 
-        stage('Ejecutar piper mtaBuild') {
+        stage('Ejecutar Piper mtaBuild') {
             steps {
                 sh '''
-                    echo "🏗️ Preparando proyecto MTA simulado..."
+                    echo "Preparando proyecto MTA simulado..."
                     mkdir -p ${WORKDIR}/mta
                     cd ${WORKDIR}/mta
 
-                    cat <<EOF > mta.yaml
-ID: demo-npm-real-mta
-version: 1.0.0
-modules:
-  - name: demo-module
-    type: nodejs
-    path: .
-EOF
+                    echo 'ID: demo-piper-mta' > mta.yaml
+                    echo 'version: 1.0.0' >> mta.yaml
+                    echo 'modules:' >> mta.yaml
+                    echo '  - name: demo-module' >> mta.yaml
+                    echo '    type: nodejs' >> mta.yaml
+                    echo '    path: .' >> mta.yaml
 
                     echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
 
-                    echo "🏗️ Ejecutando piper mtaBuild..."
-                    piper mtaBuild --verbose || echo "⚠️ mtaBuild finalizó con advertencias"
+                    echo "Ejecutando piper mtaBuild..."
+                    piper mtaBuild --verbose || echo "mtaBuild finalizó con advertencias"
 
-                    echo "📄 Archivos generados en MTA folder:"
+                    echo "Archivos generados:"
                     ls -lh
                 '''
             }
@@ -119,13 +102,12 @@ EOF
         stage('Archivar artefactos') {
             steps {
                 script {
-                    echo "📦 Verificando si se generó el artefacto .mtar..."
                     sh '''
                         cd ${WORKDIR}/mta
-                        if [ ! -f mta_archives/demo-npm-real-mta.mtar ]; then
+                        if [ ! -f mta_archives/demo-piper-mta.mtar ]; then
                             echo "⚠️ No se generó ningún .mtar — creando uno ficticio para la prueba."
                             mkdir -p mta_archives
-                            echo "archivo ficticio" > mta_archives/demo-npm-real-mta.mtar
+                            echo "archivo ficticio" > mta_archives/demo-piper-mta.mtar
                         fi
                         echo "✅ Archivos encontrados:"
                         ls -lh mta_archives/
@@ -138,7 +120,7 @@ EOF
 
     post {
         always {
-            echo '✅ Pipeline completo con npmExecuteScripts + mtaBuild ejecutado correctamente.'
+            echo 'Pipeline completo con npmExecuteScripts + mtaBuild ejecutado correctamente.'
         }
     }
 }
