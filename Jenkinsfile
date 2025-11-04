@@ -55,30 +55,33 @@ pipeline {
                 sh 'ls -la'
             }
         }
+
         stage('Instalar Dependencias') {
             steps {
                 script {
                     echo "📦 Instalando dependencias NPM..."
 
                     sh '''
-                        # Paso 1: Limpiar cache si es necesario
-                        npm cache verify
+                        # Configurar cache de npm
+                        npm config set cache "${NPM_CONFIG_CACHE}" --global
 
-                        # Paso 2: Instalar todas las dependencias
-                        echo "Instalando express y demás dependencias..."
+                        # Verificar si existe package-lock.json
+                        if [ ! -f "package-lock.json" ]; then
+                            echo "📝 Generando package-lock.json..."
+                            npm install --package-lock-only --no-audit
+                        fi
+
+                        cat package-lock.json
+
+                        # Ahora sí podemos usar npm ci
+                        echo "🚀 Instalando dependencias con npm ci..."
                         npm ci --no-audit --prefer-offline
 
-                        # Paso 3: Verificaciones posteriores
-                        echo "=== Dependencias instaladas ==="
+                        # Verificar instalación
+                        echo "=== Verificando instalación de express ==="
+                        npm list express
+                        echo "=== Todas las dependencias instaladas ==="
                         npm list --depth=0
-
-                        echo "=== Verificación específica de express ==="
-                        if npm list express | grep -q "express"; then
-                            echo "✅ Express instalado correctamente"
-                        else
-                            echo "❌ Express no se instaló"
-                            exit 1
-                        fi
                     '''
                 }
             }
