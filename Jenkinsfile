@@ -175,48 +175,35 @@ pipeline {
                 }
             }
         }
-
         stage('Pruebas de Funcionalidad') {
             steps {
                 script {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
 
                     sh '''
-                        echo "=== Usando npx para ejecutar sin instalación local ==="
+                        echo "=== Solución simple: usar npx con todas las dependencias ==="
 
-                        # Mostrar información del entorno
-                        echo "Node version: $(node --version)"
-                        echo "NPM version: $(npm --version)"
-                        echo "NPX version: $(npx --version)"
+                        # Ejecutar todo en un solo paso con npx
+                        npx -p jest@latest -p supertest@latest jest --verbose --passWithNoTests --config=jest.config.js
 
-                        # Verificar que el archivo de test existe
-                        echo "=== Verificando archivos de test ==="
-                        ls -la test/
-                        cat test/basic.test.js
-
-                        # Ejecutar Jest directamente con npx (descarga y ejecuta temporalmente)
-                        echo "=== Ejecutando pruebas con Jest ==="
-                        npx jest@latest --verbose --passWithNoTests --config=jest.config.js
-
-                        # Si funciona, mostrar mensaje de éxito
                         echo "✅ Pruebas ejecutadas exitosamente"
                     '''
                 }
             }
 
-            //post {
-            //    always {
-            //        // Publicar reportes si se generan
-            //        publishHTML([
-            //            allowMissing: true,
-            //            alwaysLinkToLastBuild: true,
-            //            keepAll: true,
-            //            reportDir: 'coverage/lcov-report',
-            //            reportFiles: 'index.html',
-            //            reportName: 'Cobertura de Pruebas'
-            //        ])
-            //    }
-            //}
+            post {
+                always {
+                    // Publicar reportes si se generan
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Cobertura de Pruebas'
+                    ])
+                }
+            }
         }
  
 
