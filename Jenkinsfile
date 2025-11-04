@@ -177,7 +177,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        
             post {
                 always {
                     // Publicar reportes si se generan
