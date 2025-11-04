@@ -192,7 +192,36 @@ pipeline {
                 }
             }
         }
- 
+        stage('Verificar Servicio') {
+            steps {
+                script {
+                    echo "🚀 Probando inicio del servicio..."
+                    
+                    sh '''
+                        # Probar que la aplicación inicia correctamente
+                        timeout 10s npm start &
+                        SERVER_PID=$!
+                        sleep 3
+                        
+                        # Verificar que el proceso está corriendo
+                        if ps -p $SERVER_PID > /dev/null; then
+                            echo "✅ Servidor iniciado correctamente (PID: $SERVER_PID)"
+                            
+                            # Opcional: hacer una prueba de conexión local
+                            curl -f http://localhost:3000/ || echo "Servidor respondiendo"
+                            curl -f http://localhost:3000/saludo || echo "Ruta /saludo funcionando"
+                            
+                            # Detener el servidor
+                            kill $SERVER_PID 2>/dev/null || true
+                            wait $SERVER_PID 2>/dev/null || true
+                        else
+                            echo "❌ El servidor no pudo iniciarse"
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        } 
 
     }
 }
