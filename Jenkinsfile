@@ -4,7 +4,7 @@ pipeline {
     agent {
         docker {
             image 'jenkins-node-piper-mbt:latest'
-            args '--user root:root -v /var/run/docker.sock:/var/run/docker.sock  -p 3000:3000'
+            args '--user root:root -v /var/run/docker.sock:/var/run/docker.sock  -p 3000:3000 -it'
             reuseNode true
         }
     }
