@@ -93,6 +93,31 @@ pipeline {
                 }
             }
         }
+        stage('Validación de Código') {
+                parallel {
+                    stage('Validar Sintaxis') {
+                        steps {
+                            script {
+                                echo "🔎 Validando sintaxis del código..."
 
+                                sh '''
+                                    # Validar que app.js existe y es ejecutable
+                                    if [ ! -f "app.js" ]; then
+                                        echo "❌ ERROR: app.js no encontrado"
+                                        exit 1
+                                    fi
+
+                                    # Verificar sintaxis básica de Node.js
+                                    node -c app.js
+                                    echo "✅ Sintaxis de app.js válida"
+
+                                    # Validar package.json
+                                    npm pack --dry-run 2>/dev/null && echo "✅ package.json válido"
+                                '''
+                            }
+                        }
+                    }
+                }
+        }
     }
 }
