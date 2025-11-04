@@ -147,33 +147,45 @@ pipeline {
             steps {
                 script {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
-                    
+
                     sh '''
                         pwd
-                        ls -all
+                        ls -la
+                        echo "=== Verificando test file ==="
                         cat test/basic.test.js
-                        # Instalar dependencias de desarrollo para pruebas
-                        npm install --save-dev jest supertest || echo "Test dependencies installed"
-                        
-                        # Ejecutar pruebas con Jest
-                        npx jest test/ --verbose --passWithNoTests || echo "Tests completed"
-                        
-                        # Reporte con piper
-                        piper tests --no-sap-connection \
-                            --test-type "unit" \
-                            --results-dir "test-results" \
-                            --verbose || echo "Test reporting completed"
+
+                        # FORZAR instalación de dependencias de desarrollo
+                        echo "=== Instalando Jest y Supertest ==="
+                        npm install --save-dev jest supertest --force
+
+                        # Verificar que se instalaron
+                        echo "=== Verificando instalación ==="
+                        npm list jest supertest
+
+                        # Configurar Jest
+                        echo "=== Configurando Jest ==="
+
+                        # Ejecutar pruebas
+                        echo "=== Ejecutando pruebas ==="
+                        npx jest --verbose --passWithNoTests
                     '''
                 }
             }
-            
+
             post {
                 always {
-                    junit 'test-results/**/*.xml'
+                    // Publicar resultados de pruebas si existen
+                    junit 'test-results/**/*.xml'  // Por si acaso
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Cobertura de Pruebas'
+                    ])
                 }
             }
         }
-
-//--
     }
 }
