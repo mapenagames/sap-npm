@@ -155,24 +155,27 @@ pipeline {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
 
                     sh '''
-                        pwd
-                        ls -la
-                        echo "=== Verificando test file ==="
-                        cat test/basic.test.js
+                        # SOLUCIÓN: Limpiar completamente y reinstalar
+                        echo "=== Limpiando cache y reinstalando dependencias de desarrollo ==="
 
-                        # Verificar si jest y supertest están instalados
-                        echo "=== Verificando instalación actual ==="
-                        npm list jest supertest || echo "No instalados, procediendo..."
+                        # Limpiar cache de npm
+                        npm cache clean --force
 
-                        # Instalar solo si no están presentes
-                        if ! npm list jest > /dev/null 2>&1; then
-                            echo "=== Instalando Jest y Supertest ==="
-                            npm install --save-dev jest supertest --no-audit
-                        fi
+                        # Eliminar node_modules para reinstalación limpia
+                        rm -rf node_modules
 
-                        # Verificar que se instalaron
+                        # Reinstalar TODAS las dependencias incluyendo desarrollo
+                        npm install --include=dev --no-audit
+
+                        # Verificar instalación
                         echo "=== Verificación final ==="
-                        npm list jest supertest
+                        npm list jest supertest --depth=0
+
+                        # Verificar que los archivos están realmente en node_modules
+                        echo "=== Verificando archivos en node_modules ==="
+                        ls -la node_modules | grep -E "(jest|supertest)" || echo "Buscando módulos..."
+                        find node_modules -name "jest*" -type d | head -3
+                        find node_modules -name "supertest*" -type d | head -3
 
                         # Ejecutar pruebas
                         echo "=== Ejecutando pruebas ==="
@@ -181,5 +184,7 @@ pipeline {
                 }
             }
         }
+
+
     }
 }
