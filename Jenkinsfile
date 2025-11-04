@@ -74,25 +74,29 @@ pipeline {
                 }
             }
         }
+
         stage('Instalar Dependencias') {
             steps {
                 script {
                     echo "📦 Instalando dependencias NPM..."
 
                     sh '''
-                        # Ahora sí podemos usar npm ci
-                        echo "🚀 Instalando dependencias con npm ci..."
+                        # Paso 1: Instalar dependencias de producción
+                        echo "🚀 Instalando dependencias de producción..."
                         npm ci --no-audit --prefer-offline
 
+                        # Paso 2: Instalar dependencias de desarrollo
+                        echo "🚀 Instalando dependencias de desarrollo..."
+                        npm install --only=dev --no-audit
+
                         # Verificar instalación
-                        echo "=== Verificando instalación de express ==="
-                        npm list express
-                        echo "=== Todas las dependencias instaladas ==="
-                        npm list --depth=0
+                        echo "=== Verificando instalación ==="
+                        npm list express jest supertest --depth=0
                     '''
                 }
             }
         }
+
         stage('Validación de Código') {
             parallel {
                 stage('Validar Sintaxis') {
@@ -154,16 +158,19 @@ pipeline {
                         echo "=== Verificando test file ==="
                         cat test/basic.test.js
 
-                        # FORZAR instalación de dependencias de desarrollo
-                        echo "=== Instalando Jest y Supertest ==="
-                        npm install --save-dev jest supertest --force
+                        # Verificar si jest y supertest están instalados
+                        echo "=== Verificando instalación actual ==="
+                        npm list jest supertest || echo "No instalados, procediendo..."
+
+                        # Instalar solo si no están presentes
+                        if ! npm list jest > /dev/null 2>&1; then
+                            echo "=== Instalando Jest y Supertest ==="
+                            npm install --save-dev jest supertest --no-audit
+                        fi
 
                         # Verificar que se instalaron
-                        echo "=== Verificando instalación ==="
+                        echo "=== Verificación final ==="
                         npm list jest supertest
-
-                        # Configurar Jest
-                        echo "=== Configurando Jest ==="
 
                         # Ejecutar pruebas
                         echo "=== Ejecutando pruebas ==="
