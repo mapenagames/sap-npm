@@ -149,42 +149,37 @@ pipeline {
                 }
             }
         }
+
         stage('Pruebas de Funcionalidad') {
             steps {
                 script {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
 
                     sh '''
-                        # SOLUCIÓN: Limpiar completamente y reinstalar
-                        echo "=== Limpiando cache y reinstalando dependencias de desarrollo ==="
+                        echo "=== Approach nuclear: reinstalación completa ==="
 
-                        # Limpiar cache de npm
+                        # Paso 1: Limpiar todo
+                        rm -rf node_modules
+                        rm -f package-lock.json
                         npm cache clean --force
 
-                        # Eliminar node_modules para reinstalación limpia
-                        rm -rf node_modules
+                        # Paso 2: Reinstalar desde cero
+                        npm install --save-dev jest supertest --no-audit --prefer-offline
 
-                        # Reinstalar TODAS las dependencias incluyendo desarrollo
-                        npm install --include=dev --no-audit
-
-                        # Verificar instalación
-                        echo "=== Verificación final ==="
+                        # Paso 3: Verificación extrema
+                        echo "=== Verificación extrema ==="
+                        ls -la node_modules/jest || echo "Jest no encontrado"
+                        ls -la node_modules/supertest || echo "Supertest no encontrado"
                         npm list jest supertest --depth=0
 
-                        # Verificar que los archivos están realmente en node_modules
-                        echo "=== Verificando archivos en node_modules ==="
-                        ls -la node_modules | grep -E "(jest|supertest)" || echo "Buscando módulos..."
-                        find node_modules -name "jest*" -type d | head -3
-                        find node_modules -name "supertest*" -type d | head -3
-
-                        # Ejecutar pruebas
+                        # Paso 4: Ejecutar pruebas
                         echo "=== Ejecutando pruebas ==="
-                        npx jest --verbose --passWithNoTests
+                        npx jest --verbose --passWithNoTests --no-cache
                     '''
                 }
             }
         }
-
+ 
 
     }
 }
