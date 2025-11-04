@@ -246,13 +246,12 @@ pipeline {
                     cat Dockerfile
                     '''
                     sh """
+                        pwd
+                        ls -all
+                        
                         # Construir imagen Docker
                         docker build -t ${PROJECT_NAME}:${BUILD_VERSION} .
                         docker tag ${PROJECT_NAME}:${BUILD_VERSION} ${PROJECT_NAME}:latest
-                        
-                        pwd
-                        ls -all
-                        docker images
 
                         # Registrar build con piper
                         piper docker --no-sap-connection \
