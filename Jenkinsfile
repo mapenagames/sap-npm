@@ -199,7 +199,7 @@ pipeline {
                     
                     sh '''
                         # Probar que la aplicación inicia correctamente
-                        timeout 10s npm start &
+                        timeout 1000s npm start &
                         SERVER_PID=$!
                         sleep 3
                         
@@ -212,6 +212,7 @@ pipeline {
                             curl -f http://localhost:3000/saludo || echo "Ruta /saludo funcionando"
                             
                             # Detener el servidor
+                            sleep 1000
                             kill $SERVER_PID 2>/dev/null || true
                             wait $SERVER_PID 2>/dev/null || true
                         else
