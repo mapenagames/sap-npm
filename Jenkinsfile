@@ -171,21 +171,6 @@ pipeline {
                     '''
                 }
             }
-
-            post {
-                always {
-                    // Publicar resultados de pruebas si existen
-                    junit 'test-results/**/*.xml'  // Por si acaso
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage/lcov-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Cobertura de Pruebas'
-                    ])
-                }
-            }
         }
     }
 }
