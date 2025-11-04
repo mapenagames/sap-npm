@@ -234,21 +234,18 @@ pipeline {
                     
                     // Crear Dockerfile si no existe
                     sh '''
-                        if [ ! -f "Dockerfile" ]; then
-                            cat > Dockerfile << 'EOF'
-                            FROM node:18-alpine
-                            WORKDIR /app
-                            COPY package*.json ./
-                            RUN npm ci --production
-                            COPY . .
-                            EXPOSE 3000
-                            USER node
-                            CMD ["npm", "start"]
-                            EOF
+                    echo "FROM node:18-alpine               ' >  Dockerfile
+                    echo 'WORKDIR /app                      ' >>  Dockerfile
+                    echo 'COPY package*.json ./             ' >>  Dockerfile
+                    echo 'RUN npm ci --production           ' >>  Dockerfile
+                    echo 'COPY . .                          ' >>  Dockerfile
+                    echo 'EXPOSE 3000                       ' >>  Dockerfile
+                    echo 'USER node                         ' >>  Dockerfile
+                    echo 'CMD ["npm", "start"]              ' >>  Dockerfile             
                             
-                            echo "✅ Dockerfile creado automáticamente"
-                        fi
-                        cat Dockerfile
+                    echo "✅ Dockerfile creado automáticamente"
+
+                    cat Dockerfile
                     '''
                     
                     sh """
