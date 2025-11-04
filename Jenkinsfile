@@ -149,7 +149,28 @@ pipeline {
                 }
             }
         }
+        stage('Debug Dependencias') {
+            steps {
+                script {
+                    echo "🐛 Debug: Investigando problema de dependencias"
 
+                    sh '''
+                        echo "=== Estado actual del proyecto ==="
+                        npm --version
+                        node --version
+                        echo "Package.json:"
+                        cat package.json
+                        echo "=== Contenido de node_modules ==="
+                        ls -la node_modules | wc -l
+                        du -sh node_modules
+                        echo "=== Cache de npm ==="
+                        npm config get cache
+                        ls -la ~/.npm
+                    '''
+                }
+            }
+        }
+        
         stage('Pruebas de Funcionalidad') {
             steps {
                 script {
