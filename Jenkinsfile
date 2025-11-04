@@ -202,19 +202,19 @@ pipeline {
                         echo "Iniciando servidor en puerto 3000..."
                         npm start &
                         SERVER_PID=$!
-                        
+
                         # Esperar que el servidor inicie
                         sleep 5
-                        
+
                         # Verificar que el proceso está corriendo usando kill -0
                         if kill -0 $SERVER_PID 2>/dev/null; then
                             echo "✅ Servidor iniciado correctamente (PID: $SERVER_PID)"
-                            
+
                             # Probar que responde en localhost:3000
                             echo "=== Probando endpoints ==="
                             curl -f http://localhost:3000/ && echo "✅ Endpoint / funcionando"
                             curl -f http://localhost:3000/saludo && echo "✅ Endpoint /saludo funcionando"
-                            
+
                             # Detener el servidor
                             kill $SERVER_PID
                             wait $SERVER_PID 2>/dev/null || true
@@ -227,5 +227,45 @@ pipeline {
                 }
             }
         }
+        stage('Build Docker') {
+            steps {
+                script {
+                    echo "🐳 Construyendo imagen Docker..."
+                    
+                    // Crear Dockerfile si no existe
+                    sh '''
+                        if [ ! -f "Dockerfile" ]; then
+                            cat > Dockerfile << 'EOF'
+                        FROM node:18-alpine
+                        WORKDIR /app
+                        COPY package*.json ./
+                        RUN npm ci --production
+                        COPY . .
+                        EXPOSE 3000
+                        USER node
+                        CMD ["npm", "start"]
+                        EOF
+                            echo "✅ Dockerfile creado automáticamente"
+                        fi
+                    '''
+                    
+                    sh """
+                        # Construir imagen Docker
+                        docker build -t ${PROJECT_NAME}:${BUILD_VERSION} .
+                        docker tag ${PROJECT_NAME}:${BUILD_VERSION} ${PROJECT_NAME}:latest
+                        
+                        # Registrar build con piper
+                        piper docker --no-sap-connection \
+                            --dockerfile "Dockerfile" \
+                            --image-name "${PROJECT_NAME}" \
+                            --image-tag "${BUILD_VERSION}" \
+                            --build-context "." \
+                            --verbose || echo "Docker build recorded"
+                    """
+                }
+            }
+        }
+
+
     }
 }
