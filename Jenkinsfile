@@ -80,7 +80,6 @@ pipeline {
                     echo "📦 Instalando dependencias NPM..."
 
                     sh '''
-
                         # Ahora sí podemos usar npm ci
                         echo "🚀 Instalando dependencias con npm ci..."
                         npm ci --no-audit --prefer-offline
