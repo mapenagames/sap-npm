@@ -55,5 +55,27 @@ pipeline {
                 sh 'ls -la'
             }
         }
+        stage('Instalar Dependencias') {
+            steps {
+                script {
+                    echo "📦 Instalando dependencias NPM..."
+
+                    sh '''
+                        # Configurar cache de npm para mejor performance
+                        npm config set cache "${NPM_CONFIG_CACHE}" --global
+
+                        # Instalar dependencias exactas como en package-lock.json
+                        echo "Instalando todas las dependencias..."
+                        npm ci --no-audit --prefer-offline --production=false
+
+                        # VERIFICACIÓN: Ahora sí express debería estar instalado
+                        echo "=== Verificando instalación de express ==="
+                        npm list express
+                        echo "=== Todas las dependencias instaladas ==="
+                        npm list --depth=0
+                    '''
+                }
+            }
+        }
     }
 }
