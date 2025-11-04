@@ -79,21 +79,13 @@ pipeline {
             steps {
                 script {
                     echo "📦 Instalando dependencias NPM..."
-
                     sh '''
-                        # Paso 1: Instalar dependencias de producción
-                        echo "Instalando dependencias de producción..."
-                        echo "Instalando dependencias de producción..."
-                        npm ci --no-audit --prefer-offline
-
-                        # Paso 2: Instalar dependencias de desarrollo
-                        echo "Instalando dependencias de desarrollo..."
-                        echo "Instalando dependencias de desarrollo..."
-                        npm install --only=dev --no-audit
+                        # Instalar TODAS las dependencias incluyendo desarrollo
+                        npm install --include=dev --no-audit --prefer-offline
 
                         # Verificar instalación
-                        echo "=== Verificando instalación ==="
-                        npm list express jest supertest --depth=0
+                        echo "=== Dependencias instaladas ==="
+                        npm list --depth=0
                     '''
                 }
             }
@@ -179,18 +171,13 @@ pipeline {
             steps {
                 script {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
-
                     sh '''
-                        echo "=== Solución simple: usar npx con todas las dependencias ==="
-
-                        # Ejecutar todo en un solo paso con npx
-                        npx -p jest@latest -p supertest@latest jest --verbose --passWithNoTests --config=jest.config.js
-
-                        echo "✅ Pruebas ejecutadas exitosamente"
+                        # Ejecutar pruebas
+                        npx jest --verbose --passWithNoTests --config=jest.config.js
                     '''
                 }
             }
-
+        }
             post {
                 always {
                     // Publicar reportes si se generan
