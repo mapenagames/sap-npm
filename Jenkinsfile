@@ -48,7 +48,7 @@ pipeline {
                     branches: [[name: '*/main']],  // o usa env.BRANCH_NAME
                     extensions: [],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/tu-usuario/sap-npm.git'
+                        url: 'https://github.com/mapenagames/sap-npm.git'
                         //credentialsId: 'tu-credencial-git'
                     ]]
                 ])
