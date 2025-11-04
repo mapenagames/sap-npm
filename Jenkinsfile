@@ -31,6 +31,7 @@ pipeline {
                 script {
                     echo "🔍 Verificando herramientas en el contenedor..."
                     sh '''
+                        set -x
                         echo "=== Versiones de Herramientas ==="
                         node --version
                         npm --version
