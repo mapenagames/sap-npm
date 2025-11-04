@@ -170,32 +170,23 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Pruebas de Funcionalidad') {
             steps {
                 script {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
 
                     sh '''
-                        echo "=== Approach nuclear: reinstalación completa ==="
+                        echo "=== Instalación limpia ==="
 
-                        # Paso 1: Limpiar todo
-                        rm -rf node_modules
-                        rm -f package-lock.json
-                        npm cache clean --force
+                        # Solo instalar las dependencias de desarrollo que necesitamos
+                        npm install jest@30.0.0 supertest@7.0.0 --no-save --no-audit
 
-                        # Paso 2: Reinstalar desde cero
-                        npm install --save-dev jest supertest --no-audit --prefer-offline
-
-                        # Paso 3: Verificación extrema
-                        echo "=== Verificación extrema ==="
-                        ls -la node_modules/jest || echo "Jest no encontrado"
-                        ls -la node_modules/supertest || echo "Supertest no encontrado"
+                        echo "=== Verificación ==="
                         npm list jest supertest --depth=0
 
-                        # Paso 4: Ejecutar pruebas
                         echo "=== Ejecutando pruebas ==="
-                        npx jest --verbose --passWithNoTests --no-cache
+                        npx jest --verbose --passWithNoTests
                     '''
                 }
             }
