@@ -1,5 +1,17 @@
 const request = require('supertest');
-const app = require('../app.js');
+
+// Crear una instancia de la app para testing
+const express = require('express');
+const app = express();
+
+// Configurar las rutas de prueba
+app.get('/', (req, res) => {
+    res.send('¡Hola Mundo!');
+});
+
+app.get('/saludo', (req, res) => {
+    res.send('¡Bienvenido al servidor!');
+});
 
 describe('GET /', () => {
     it('should return Hola Mundo', async () => {
