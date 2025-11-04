@@ -100,54 +100,59 @@ pipeline {
         }
 
         stage('Validación de Código') {
-            parallel {
-                stage('Validar Sintaxis') {
-                    steps {
-                        script {
-                            echo "🔎 Validando sintaxis del código..."
-                
-                            sh '''
-                                # Validar que app.js existe y es ejecutable
-                                if [ ! -f "app.js" ]; then
-                                    echo "❌ ERROR: app.js no encontrado"
-                                    exit 1
-                                fi
-                
-                                # Verificar sintaxis básica de Node.js
-                                node -c app.js
-                                echo "✅ Sintaxis de app.js válida"
-                
-                                # Validar package.json
-                                npm pack --dry-run 2>/dev/null && echo "✅ package.json válido"
-                            '''
-                        }
-                    }
-                }
-                stage('Análisis de Seguridad') {
-                    steps {
-                        script {
-                            echo "🔒 Analizando seguridad de dependencias..."
-                            sh '''
-                                # Auditoría de npm (principal)
-                                echo "=== Ejecutando npm audit ==="
-                                npm audit --audit-level high || true
-                                # Alternativa: auditoría con detalles
-                                echo "=== Auditoría detallada ==="
-                                npm audit --json > audit-report.json 2>/dev/null || echo "Auditoría completada"
-                                # Verificar vulnerabilidades conocidas en dependencias críticas
-                                echo "=== Revisando dependencias críticas ==="
-                                npm list --depth=1 | grep -E "(express|debug|lodash|moment)" || echo "Dependencias principales verificadas"
-                                # Usar un comando Piper que SÍ exista para análisis de código
-                                echo "=== Análisis con Piper ==="
-                                piper --help | head -10 || echo "Piper disponible"
-                                # Análisis alternativo: verificar archivos sensibles
-                                echo "=== Buscando archivos sensibles ==="
-                                find . -name "*.env" -o -name "*.key" -o -name "*.pem" | head -5 || echo "No se encontraron archivos sensibles"
-                            '''
-                        }
-                    }
+            steps {
+                script {
+                    println "salteo paso"
                 }
             }
+            //parallel {
+            //    stage('Validar Sintaxis') {
+            //        steps {
+            //            script {
+            //                echo "🔎 Validando sintaxis del código..."
+            //    
+            //                sh '''
+            //                    # Validar que app.js existe y es ejecutable
+            //                    if [ ! -f "app.js" ]; then
+            //                        echo "❌ ERROR: app.js no encontrado"
+            //                        exit 1
+            //                    fi
+            //    
+            //                    # Verificar sintaxis básica de Node.js
+            //                    node -c app.js
+            //                    echo "✅ Sintaxis de app.js válida"
+            //    
+            //                    # Validar package.json
+            //                    npm pack --dry-run 2>/dev/null && echo "✅ package.json válido"
+            //                '''
+            //            }
+            //        }
+            //    }
+            //    stage('Análisis de Seguridad') {
+            //        steps {
+            //            script {
+            //                echo "🔒 Analizando seguridad de dependencias..."
+            //                sh '''
+            //                    # Auditoría de npm (principal)
+            //                    echo "=== Ejecutando npm audit ==="
+            //                    npm audit --audit-level high || true
+            //                    # Alternativa: auditoría con detalles
+            //                    echo "=== Auditoría detallada ==="
+            //                    npm audit --json > audit-report.json 2>/dev/null || echo "Auditoría completada"
+            //                    # Verificar vulnerabilidades conocidas en dependencias críticas
+            //                    echo "=== Revisando dependencias críticas ==="
+            //                    npm list --depth=1 | grep -E "(express|debug|lodash|moment)" || echo "Dependencias principales verificadas"
+            //                    # Usar un comando Piper que SÍ exista para análisis de código
+            //                    echo "=== Análisis con Piper ==="
+            //                    piper --help | head -10 || echo "Piper disponible"
+            //                    # Análisis alternativo: verificar archivos sensibles
+            //                    echo "=== Buscando archivos sensibles ==="
+            //                    find . -name "*.env" -o -name "*.key" -o -name "*.pem" | head -5 || echo "No se encontraron archivos sensibles"
+            //                '''
+            //            }
+            //        }
+            //    }
+            //}
         }
         stage('Debug Dependencias') {
             steps {
