@@ -1,0 +1,17 @@
+pipeline {
+    agent {
+        docker {
+            image 'jenkins-node-piper-mbt:latest'
+            args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    stages {
+        stage('Check Docker') {
+            steps {
+                sh 'whoami'
+                sh 'docker --version'
+                sh 'docker ps'
+            }
+        }
+    }
+}
