@@ -133,7 +133,7 @@ pipeline {
                                         --results-file "security-report.json" \
                                         --verbose || echo "Security scan completed"
 
-                                    cat security-report.json
+                                    # cat security-report.json
                                 '''
                             }
                         }
