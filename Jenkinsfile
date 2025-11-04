@@ -182,19 +182,41 @@ pipeline {
                     echo "🧪 Ejecutando pruebas de funcionalidad..."
 
                     sh '''
-                        echo "=== Instalación limpia ==="
+                        echo "=== Usando npx para ejecutar sin instalación local ==="
 
-                        # Solo instalar las dependencias de desarrollo que necesitamos
-                        npm install jest@30.0.0 supertest@7.0.0 --no-save --no-audit
+                        # Mostrar información del entorno
+                        echo "Node version: $(node --version)"
+                        echo "NPM version: $(npm --version)"
+                        echo "NPX version: $(npx --version)"
 
-                        echo "=== Verificación ==="
-                        npm list jest supertest --depth=0
+                        # Verificar que el archivo de test existe
+                        echo "=== Verificando archivos de test ==="
+                        ls -la test/
+                        cat test/basic.test.js
 
-                        echo "=== Ejecutando pruebas ==="
-                        npx jest --verbose --passWithNoTests
+                        # Ejecutar Jest directamente con npx (descarga y ejecuta temporalmente)
+                        echo "=== Ejecutando pruebas con Jest ==="
+                        npx jest@latest --verbose --passWithNoTests --config=jest.config.js
+
+                        # Si funciona, mostrar mensaje de éxito
+                        echo "✅ Pruebas ejecutadas exitosamente"
                     '''
                 }
             }
+
+            //post {
+            //    always {
+            //        // Publicar reportes si se generan
+            //        publishHTML([
+            //            allowMissing: true,
+            //            alwaysLinkToLastBuild: true,
+            //            keepAll: true,
+            //            reportDir: 'coverage/lcov-report',
+            //            reportFiles: 'index.html',
+            //            reportName: 'Cobertura de Pruebas'
+            //        ])
+            //    }
+            //}
         }
  
 
