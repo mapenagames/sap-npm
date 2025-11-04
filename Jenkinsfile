@@ -82,11 +82,13 @@ pipeline {
 
                     sh '''
                         # Paso 1: Instalar dependencias de producción
-                        echo "🚀 Instalando dependencias de producción..."
+                        echo "Instalando dependencias de producción..."
+                        echo "Instalando dependencias de producción..."
                         npm ci --no-audit --prefer-offline
 
                         # Paso 2: Instalar dependencias de desarrollo
-                        echo "🚀 Instalando dependencias de desarrollo..."
+                        echo "Instalando dependencias de desarrollo..."
+                        echo "Instalando dependencias de desarrollo..."
                         npm install --only=dev --no-audit
 
                         # Verificar instalación
