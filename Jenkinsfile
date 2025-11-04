@@ -56,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('Instalar Dependencias') {
+        stage('Conf npm y creacion package-lock.json') {
             steps {
                 script {
                     echo "📦 Instalando dependencias NPM..."
@@ -64,14 +64,22 @@ pipeline {
                     sh '''
                         # Configurar cache de npm
                         npm config set cache "${NPM_CONFIG_CACHE}" --global
-
                         # Verificar si existe package-lock.json
                         if [ ! -f "package-lock.json" ]; then
                             echo "📝 Generando package-lock.json..."
                             npm install --package-lock-only --no-audit
                         fi
-
                         cat package-lock.json
+                    '''
+                }
+            }
+        }
+        stage('Instalar Dependencias') {
+            steps {
+                script {
+                    echo "📦 Instalando dependencias NPM..."
+
+                    sh '''
 
                         # Ahora sí podemos usar npm ci
                         echo "🚀 Instalando dependencias con npm ci..."
