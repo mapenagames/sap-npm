@@ -231,37 +231,22 @@ pipeline {
             steps {
                 script {
                     echo "🐳 Construyendo imagen Docker..."
-                    
-                    // Crear Dockerfile si no existe
                     sh '''
-                    echo "FROM node:18-alpine               ' >  Dockerfile
-                    echo 'WORKDIR /app                      ' >>  Dockerfile
-                    echo 'COPY package*.json ./             ' >>  Dockerfile
-                    echo 'RUN npm ci --production           ' >>  Dockerfile
-                    echo 'COPY . .                          ' >>  Dockerfile
-                    echo 'EXPOSE 3000                       ' >>  Dockerfile
-                    echo 'USER node                         ' >>  Dockerfile
-                    echo 'CMD ["npm", "start"]              ' >>  Dockerfile             
+                    echo "FROM node:18-alpine               " >  Dockerfile
+                    echo "WORKDIR /app                      " >>  Dockerfile
+                    echo "COPY package*.json ./             " >>  Dockerfile
+                    echo "RUN npm ci --production           " >>  Dockerfile
+                    echo "COPY . .                          " >>  Dockerfile
+                    echo "EXPOSE 3000                       " >>  Dockerfile
+                    echo "USER node                         " >>  Dockerfile
+                    echo "CMD ["npm", "start"]              " >>  Dockerfile             
                             
                     echo "✅ Dockerfile creado automáticamente"
 
                     cat Dockerfile
                     '''
                     
-                    sh """
-                        # Construir imagen Docker
-                        docker build -t ${PROJECT_NAME}:${BUILD_VERSION} .
-                        docker tag ${PROJECT_NAME}:${BUILD_VERSION} ${PROJECT_NAME}:latest
-                        
-                        # Registrar build con piper
-                        piper docker --no-sap-connection \
-                            --dockerfile "Dockerfile" \
-                            --image-name "${PROJECT_NAME}" \
-                            --image-tag "${BUILD_VERSION}" \
-                            --build-context "." \
-                            --verbose || echo "Docker build recorded"
-                    """
-                }
+                 }
             }
         }
 
