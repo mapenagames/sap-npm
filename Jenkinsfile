@@ -40,14 +40,19 @@ pipeline {
                 }
             }
         }
-        
         stage('Checkout Código') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],  // o usa env.BRANCH_NAME
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/tu-usuario/sap-npm.git',
+                        //credentialsId: 'tu-credencial-git'
+                    ]]
+                ])
                 sh 'ls -la'
             }
         }
-        
-
     }
 }
