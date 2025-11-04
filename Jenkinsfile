@@ -69,7 +69,7 @@ pipeline {
                             echo "📝 Generando package-lock.json..."
                             npm install --package-lock-only --no-audit
                         fi
-                        cat package-lock.json
+                        # cat package-lock.json
                     '''
                 }
             }
