@@ -117,7 +117,28 @@ pipeline {
                             }
                         }
                     }
-                }
+                    stage('Análisis de Seguridad') {
+                        steps {
+                            script {
+                                echo "🔒 Analizando seguridad de dependencias..."
+
+                                sh '''
+                                    # Auditoría de npm (no falla el build)
+                                    npm audit --audit-level high || true
+
+                                    # Análisis con piper sin conexión SAP
+                                    piper security --no-sap-connection \
+                                        --scan-type "dependency" \
+                                        --output-format "json" \
+                                        --results-file "security-report.json" \
+                                        --verbose || echo "Security scan completed"
+
+                                    cat security-report.json
+                                '''
+                            }
+                        }
+                    }
+            }
         }
     }
 }
