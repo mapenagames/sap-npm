@@ -192,29 +192,33 @@ pipeline {
                 }
             }
         }
-        stage('Verificar Servicio') {
+
+        stage('Verificar Servicio Web') {
             steps {
                 script {
-                    echo "🚀 Probando inicio del servicio..."
-                    
+                    echo "🌐 Probando servicio web en puerto 3000..."
                     sh '''
-                        # Probar que la aplicación inicia correctamente
-                        timeout 1000s npm start &
+                        # Iniciar servidor en background
+                        echo "Iniciando servidor en puerto 3000..."
+                        npm start &
                         SERVER_PID=$!
-                        sleep 3
                         
-                        # Verificar que el proceso está corriendo
-                        if ps -p $SERVER_PID > /dev/null; then
+                        # Esperar que el servidor inicie
+                        sleep 5
+                        
+                        # Verificar que el proceso está corriendo usando kill -0
+                        if kill -0 $SERVER_PID 2>/dev/null; then
                             echo "✅ Servidor iniciado correctamente (PID: $SERVER_PID)"
                             
-                            # Opcional: hacer una prueba de conexión local
-                            curl -f http://localhost:3000/ || echo "Servidor respondiendo"
-                            curl -f http://localhost:3000/saludo || echo "Ruta /saludo funcionando"
+                            # Probar que responde en localhost:3000
+                            echo "=== Probando endpoints ==="
+                            curl -f http://localhost:3000/ && echo "✅ Endpoint / funcionando"
+                            curl -f http://localhost:3000/saludo && echo "✅ Endpoint /saludo funcionando"
                             
                             # Detener el servidor
-                            sleep 1000
-                            kill $SERVER_PID 2>/dev/null || true
+                            kill $SERVER_PID
                             wait $SERVER_PID 2>/dev/null || true
+                            echo "🛑 Servidor detenido"
                         else
                             echo "❌ El servidor no pudo iniciarse"
                             exit 1
@@ -222,7 +226,6 @@ pipeline {
                     '''
                 }
             }
-        } 
-
+        }
     }
 }
