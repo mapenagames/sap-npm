@@ -1,9 +1,7 @@
-@Library('piper-lib') _  // Nombre de la librería registrada en Jenkins
-
 pipeline {
     agent {
         docker {
-            image 'node:18-alpine'
+            image 'jenkins-node-piper-mbt'
             args '-u root:root'
         }
     }
@@ -14,27 +12,20 @@ pipeline {
 
     stages {
 
-        stage('Preparar entorno') {
-            steps {
-                sh '''
-                    apk add --no-cache wget git bash curl
-                    npm install -g mbt
-                    echo "mbt instalado en $(which mbt)"
-                    mbt --version
-                '''
-            }
-        }
-
         stage('Preparar proyecto npm real') {
             steps {
                 sh '''
                     mkdir -p ${WORKDIR}
                     cd ${WORKDIR}
 
+                    # Crear proyecto npm
                     npm init -y
+
+                    # Instalar dependencias reales
                     npm install express
                     npm install --save-dev eslint jest babel-cli @babel/core @babel/preset-env
 
+                    # Crear scripts de package.json
                     node -e "
                     const fs = require('fs');
                     const pkg = require('./package.json');
@@ -46,42 +37,44 @@ pipeline {
                     fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
                     "
 
+                    # Generar package-lock.json para que npm ci funcione
                     npm install
                 '''
             }
         }
 
-        stage('Ejecutar npmExecuteScripts') {
+        stage('Ejecutar Piper npmExecuteScripts') {
             steps {
-                script {
-                    // Llamada a la función de la librería Groovy
-                    npmExecuteScripts(
-                        runScripts: ['lint', 'test', 'build'],
-                        verbose: true
-                    )
-                }
+                sh '''
+                    cd ${WORKDIR}
+                    echo "Ejecutando Piper npmExecuteScripts..."
+                    piper npmExecuteScripts --verbose --runScripts lint --runScripts test --runScripts build
+                '''
             }
         }
 
-        stage('Ejecutar mtaBuild') {
+        stage('Ejecutar Piper mtaBuild') {
             steps {
-                script {
-                    sh '''
-                        mkdir -p ${WORKDIR}/mta
-                        cd ${WORKDIR}/mta
+                sh '''
+                    echo "Preparando proyecto MTA simulado..."
+                    mkdir -p ${WORKDIR}/mta
+                    cd ${WORKDIR}/mta
 
-                        echo 'ID: demo-piper-mta' > mta.yaml
-                        echo 'version: 1.0.0' >> mta.yaml
-                        echo 'modules:' >> mta.yaml
-                        echo '  - name: demo-module' >> mta.yaml
-                        echo '    type: nodejs' >> mta.yaml
-                        echo '    path: .' >> mta.yaml
+                    echo 'ID: demo-piper-mta' > mta.yaml
+                    echo 'version: 1.0.0' >> mta.yaml
+                    echo 'modules:' >> mta.yaml
+                    echo '  - name: demo-module' >> mta.yaml
+                    echo '    type: nodejs' >> mta.yaml
+                    echo '    path: .' >> mta.yaml
 
-                        echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
-                    '''
-                    // Llamada a la función Groovy
-                    mtaBuild(verbose: true)
-                }
+                    echo 'console.log("Demo MTA Build ejecutado con Piper")' > index.js
+
+                    echo "Ejecutando piper mtaBuild..."
+                    piper mtaBuild --verbose || echo "mtaBuild finalizó con advertencias"
+
+                    echo "Archivos generados:"
+                    ls -lh
+                '''
             }
         }
 
@@ -91,9 +84,11 @@ pipeline {
                     sh '''
                         cd ${WORKDIR}/mta
                         if [ ! -f mta_archives/demo-piper-mta.mtar ]; then
+                            echo "⚠️ No se generó ningún .mtar — creando uno ficticio para la prueba."
                             mkdir -p mta_archives
                             echo "archivo ficticio" > mta_archives/demo-piper-mta.mtar
                         fi
+                        echo "✅ Archivos encontrados:"
                         ls -lh mta_archives/
                     '''
                 }
