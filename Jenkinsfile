@@ -31,7 +31,7 @@ pipeline {
                 script {
                     echo "🔍 Verificando herramientas en el contenedor..."
                     sh '''
-                        set -x
+                        set -e
                         echo "=== Versiones de Herramientas ==="
                         node --version
                         npm --version
@@ -48,7 +48,7 @@ pipeline {
                     branches: [[name: '*/main']],  // o usa env.BRANCH_NAME
                     extensions: [],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/tu-usuario/sap-npm.git',
+                        url: 'https://github.com/tu-usuario/sap-npm.git'
                         //credentialsId: 'tu-credencial-git'
                     ]]
                 ])
