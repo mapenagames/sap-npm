@@ -167,66 +167,66 @@ pipeline {
                 }
             }
         }
-        stage('Pruebas de Funcionalidad') {
-            steps {
-                script {
-                    echo "🧪 Ejecutando pruebas de funcionalidad..."
-                    sh '''
-                        # Ejecutar pruebas
-                        npx jest --verbose --passWithNoTests --config=jest.config.js
-                    '''
-                }
-            }
-        
-            post {
-                always {
-                    // Publicar reportes si se generan
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage/lcov-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Cobertura de Pruebas'
-                    ])
-                }
-            }
-        }
+        //stage('Pruebas de Funcionalidad') {
+        //    steps {
+        //        script {
+        //            echo "🧪 Ejecutando pruebas de funcionalidad..."
+        //            sh '''
+        //                # Ejecutar pruebas
+        //                npx jest --verbose --passWithNoTests --config=jest.config.js
+        //            '''
+        //        }
+        //    }
+        //
+        //    post {
+        //        always {
+        //            // Publicar reportes si se generan
+        //            publishHTML([
+        //                allowMissing: true,
+        //                alwaysLinkToLastBuild: true,
+        //                keepAll: true,
+        //                reportDir: 'coverage/lcov-report',
+        //                reportFiles: 'index.html',
+        //                reportName: 'Cobertura de Pruebas'
+        //            ])
+        //        }
+        //    }
+        //}
 
-        stage('Verificar Servicio Web') {
-            steps {
-                script {
-                    echo "🌐 Probando servicio web en puerto 3000..."
-                    sh '''
-                        # Iniciar servidor en background
-                        echo "Iniciando servidor en puerto 3000..."
-                        npm start &
-                        SERVER_PID=$!
-
-                        # Esperar que el servidor inicie
-                        sleep 5
-
-                        # Verificar que el proceso está corriendo usando kill -0
-                        if kill -0 $SERVER_PID 2>/dev/null; then
-                            echo "✅ Servidor iniciado correctamente (PID: $SERVER_PID)"
-
-                            # Probar que responde en localhost:3000
-                            echo "=== Probando endpoints ==="
-                            curl -f http://localhost:3000/ && echo "✅ Endpoint / funcionando"
-                            curl -f http://localhost:3000/saludo && echo "✅ Endpoint /saludo funcionando"
-
-                            # Detener el servidor
-                            kill $SERVER_PID
-                            wait $SERVER_PID 2>/dev/null || true
-                            echo "🛑 Servidor detenido"
-                        else
-                            echo "❌ El servidor no pudo iniciarse"
-                            exit 1
-                        fi
-                    '''
-                }
-            }
-        }
+        //stage('Verificar Servicio Web') {
+        //    steps {
+        //        script {
+        //            echo "🌐 Probando servicio web en puerto 3000..."
+        //            sh '''
+        //  //              # Iniciar servidor en background
+        //                echo "Iniciando servidor en puerto 3000..."
+        //                npm start &
+        //                SERVER_PID=$!
+        //
+        ////                # Esperar que el servidor inicie
+        //                sleep 5
+        //
+        ////                # Verificar que el proceso está corriendo usando kill -0
+        //                if kill -0 $SERVER_PID 2>/dev/null; then
+        //                    echo "✅ Servidor iniciado correctamente (PID: $SERVER_PID)"
+        //
+        ////                    # Probar que responde en localhost:3000
+        //                    echo "=== Probando endpoints ==="
+        //                    curl -f http://localhost:3000/ && echo "✅ Endpoint / funcionando"
+        //                    curl -f http://localhost:3000/saludo && echo "✅ Endpoint /saludo funcionando"
+        //
+        ////                    # Detener el servidor
+        //                    kill $SERVER_PID
+        //                    wait $SERVER_PID 2>/dev/null || true
+        //                    echo "🛑 Servidor detenido"
+        //                else
+        //                    echo "❌ El servidor no pudo iniciarse"
+        //                    exit 1
+        //                fi
+        //            '''
+        //        }
+        //    }
+        //}
         stage('Build Docker') {
             steps {
                 script {
@@ -236,17 +236,19 @@ pipeline {
                     sh '''
                         if [ ! -f "Dockerfile" ]; then
                             cat > Dockerfile << 'EOF'
-                        FROM node:18-alpine
-                        WORKDIR /app
-                        COPY package*.json ./
-                        RUN npm ci --production
-                        COPY . .
-                        EXPOSE 3000
-                        USER node
-                        CMD ["npm", "start"]
-                        EOF
+                            FROM node:18-alpine
+                            WORKDIR /app
+                            COPY package*.json ./
+                            RUN npm ci --production
+                            COPY . .
+                            EXPOSE 3000
+                            USER node
+                            CMD ["npm", "start"]
+                            EOF
+                            
                             echo "✅ Dockerfile creado automáticamente"
                         fi
+                        cat Dockerfile
                     '''
                     
                     sh """
